@@ -1,5 +1,6 @@
 #include "helpers.h"
 #include <math.h>
+#include <stdbool.h>
 
 // Convert image to grayscale
 void grayscale(int height, int width, RGBTRIPLE image[height][width])
@@ -61,8 +62,59 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
     return;
 }
 
+bool is_valid(int i, int j, int height, int width)
+{
+    return i >= 0 && i < height && j >=0 && j < width;
+}
+
+//Function that returns blurred pixel
+RGBTRIPLE boxblur_pixel(int i,int j, int height, int width, RGBTRIPLE image[height][width] )
+{
+    int redvalue, bluevalue, greenvalue;
+    redvalue = bluevalue = greenvalue = 0;
+    int numofvalidpixel = 0;
+
+    for(int di = -1; di <= 1; di++ )
+    {
+        for(int dj = -1; dj <= 1; dj++)
+        {
+            int new_i = i + di;
+            int new_j = j + dj;
+            if(is_valid(new_i, new_j, height, width))
+            {
+                numofvalidpixel++;
+                redvalue += image[new_i][new_j].rgbtRed;
+                greenvalue += image[new_i][new_j].rgbtGreen;
+                bluevalue += image[new_i][new_j].rgbtBlue;
+            }
+            else
+            {
+                //Do nothing
+            }
+        }
+    }
+    RGBTRIPLE blurred_pixel;
+    blurred_pixel.rgbtRed = round((float)(redvalue / numofvalidpixel));
+    blurred_pixel.rgbtGreen = round((float)(greenvalue / numofvalidpixel));
+    blurred_pixel.rgbtBlue = round((float)(bluevalue / numofvalidpixel));
+    return blurred_pixel;
+}
+
 // Blur image
 void blur(int height, int width, RGBTRIPLE image[height][width])
 {
+    RGBTRIPLE new_image[height][width];
+     for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width; j++)
+        {
+            new_image[i][j] = boxblur_pixel(i, j, height, width, image);
+        }
+    }
+    for(int i = 0; i < height; i++)
+        for(int j = 0; j < width; j++)
+            image[i][j] = new_image[i][j];
+
     return;
+
 }
