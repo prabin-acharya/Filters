@@ -17,11 +17,11 @@ void grayscale(int height, int width, RGBTRIPLE image[height][width])
     return;
 }
 
+
 int cap(int value)
 {
     return value > 255 ? 255 : value;
 }
-
 // Convert image to sepia
 void sepia(int height, int width, RGBTRIPLE image[height][width])
 {
@@ -41,9 +41,23 @@ void sepia(int height, int width, RGBTRIPLE image[height][width])
     return;
 }
 
+
+void swap( RGBTRIPLE *pixel1, RGBTRIPLE *pixel2)
+{
+    RGBTRIPLE temp = *pixel1;
+    *pixel1 = *pixel2;
+    *pixel2 = temp;
+}
 // Reflect image horizontally
 void reflect(int height, int width, RGBTRIPLE image[height][width])
 {
+     for(int i = 0; i < height; i++)
+    {
+        for(int j = 0; j < width / 2; j++)
+        {
+            swap(&image[i][j], &image[i][width - 1 - j]);
+        }
+    }
     return;
 }
 
