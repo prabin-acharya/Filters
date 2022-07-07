@@ -6,7 +6,6 @@ canvas.height = 512;
 
 const image = new Image();
 image.src = "DALLE.png";
-ctx.drawImage(image, 0, 0);
 
 image.addEventListener("load", () => {
   ctx.drawImage(image, 0, 0, 512, 512);
