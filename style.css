@@ -1,0 +1,10 @@
+body{
+    background-color: grey;
+    display: flex;
+}
+
+canvas{
+    border: 3px solid white;
+    margin: auto;
+    margin-top: 60px;
+}
