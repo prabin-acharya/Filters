@@ -19,23 +19,46 @@ image.addEventListener("load", () => {
 
   const scannedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-  grayscale(scannedImage);
+  // toGrayscale(scannedImage);
+
+  toSepia(scannedImage);
 
   displayImage(scannedImage);
 });
 
 //apply grayscale filter
-function grayscale(scannedImage) {
+function toGrayscale(scannedImage) {
   const scannedData = scannedImage.data;
 
   for (let i = 0; i < scannedData.length; i += 4) {
-    const total = scannedData[i] + scannedData[i + 1] + scannedData[i + 2];
-    const averageColorValue = total / 3;
+    const red = scannedData[i];
+    const green = scannedData[i + 1];
+    const blue = scannedData[i + 2];
 
-    scannedData[i] =
-      scannedData[i + 1] =
-      scannedData[i + 2] =
-        averageColorValue;
+    const averageColorValue = (red + green + blue) / 3;
+
+    scannedData[i] = averageColorValue;
+    scannedData[i + 1] = averageColorValue;
+    scannedData[i + 2] = averageColorValue;
+  }
+}
+
+//apply sepia filter
+function toSepia(scannedImage) {
+  const scannedData = scannedImage.data;
+
+  for (let i = 0; i < scannedData.length; i += 4) {
+    const red = scannedData[i];
+    const green = scannedData[i + 1];
+    const blue = scannedData[i + 2];
+
+    const newRed = red * 0.393 + green * 0.769 + blue * 0.189;
+    const newGreen = red * 0.349 + green * 0.686 + blue * 0.168;
+    const newBlue = red * 0.272 + green * 0.534 + blue * 0.131;
+
+    scannedData[i] = newRed;
+    scannedData[i + 1] = newGreen;
+    scannedData[i + 2] = newBlue;
   }
 }
 
