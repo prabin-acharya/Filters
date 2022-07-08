@@ -25,7 +25,9 @@ image.addEventListener("load", () => {
 
   // toNegative(scannedImage);
 
-  reflectImage(scannedImage);
+  // reflectImage(scannedImage);
+
+  blurImage(scannedImage);
 
   displayImage(scannedImage);
 });
@@ -120,4 +122,52 @@ function swapPixels(scannedData, pixel1, pixel2) {
   scannedData[pixel2 + 1] = tempPixel1.green;
   scannedData[pixel2 + 2] = tempPixel1.blue;
   scannedData[pixel2 + 3] = tempPixel1.alpha;
+}
+
+//apply blur filter
+function blurImage(scannedImage) {
+  const scannedData = scannedImage.data;
+
+  for (let i = 0; i < scannedData.length / (canvas.width * 4); i++) {
+    for (let j = 0; j < canvas.width * 4; j += 4) {
+      boxblur_pixel(scannedData, i, j);
+    }
+  }
+}
+
+//3*3 box blur
+//TODO: make a copy of image and use original pixels for blur(right now it
+//  uses pixels that are already blurred as it parses through the image)
+function boxblur_pixel(scannedData, i, j) {
+  let red, green, blue;
+  red = green = blue = 0;
+  let numOfValidPixels = 0;
+
+  for (let x = -1; x <= 1; x++) {
+    for (let y = -1; y <= 1; y++) {
+      const pixel = getPixel(scannedData, i + x, j + y * 4);
+      if (pixel) {
+        red += pixel.red;
+        green += pixel.green;
+        blue += pixel.blue;
+        numOfValidPixels++;
+      }
+    }
+  }
+
+  const averageRed = red / numOfValidPixels;
+  const averageGreen = green / numOfValidPixels;
+  const averageBlue = blue / numOfValidPixels;
+
+  scannedData[i * canvas.width * 4 + j] = averageRed;
+  scannedData[i * canvas.width * 4 + j + 1] = averageGreen;
+  scannedData[i * canvas.width * 4 + j + 2] = averageBlue;
+}
+
+function getPixel(scannedData, i, j) {
+  return {
+    red: scannedData[i * canvas.width * 4 + j],
+    green: scannedData[i * canvas.width * 4 + j + 1],
+    blue: scannedData[i * canvas.width * 4 + j + 2],
+  };
 }
