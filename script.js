@@ -3,8 +3,6 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = 512;
 canvas.height = 512;
-const width = canvas.width;
-const height = canvas.height;
 
 const image = new Image();
 image.src = "DALLE.png";
@@ -12,7 +10,12 @@ image.src = "DALLE.png";
 image.addEventListener("load", () => {
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-  const scannedImageOriginal = ctx.getImageData(0, 0, width, height);
+  const scannedImageOriginal = ctx.getImageData(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
 
   const scannedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
