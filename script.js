@@ -3,6 +3,8 @@ const ctx = canvas.getContext("2d");
 
 canvas.width = 512;
 canvas.height = 512;
+const width = canvas.width;
+const height = canvas.height;
 
 const image = new Image();
 image.src = "DALLE.png";
@@ -10,11 +12,13 @@ image.src = "DALLE.png";
 image.addEventListener("load", () => {
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
+  const scannedImageOriginal = ctx.getImageData(0, 0, width, height);
+
   const scannedImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-  const scannedImage_grayscale = grayscale(scannedImage);
+  grayscale(scannedImage);
 
-  ctx.putImageData(scannedImage_grayscale, 0, 0);
+  displayImage(scannedImage);
 });
 
 //apply grayscale filter
@@ -24,10 +28,15 @@ function grayscale(scannedImage) {
   for (let i = 0; i < scannedData.length; i += 4) {
     const total = scannedData[i] + scannedData[i + 1] + scannedData[i + 2];
     const averageColorValue = total / 3;
-    scannedData[i] = averageColorValue;
-    scannedData[i + 1] = averageColorValue;
-    scannedData[i + 2] = averageColorValue;
+
+    scannedData[i] =
+      scannedData[i + 1] =
+      scannedData[i + 2] =
+        averageColorValue;
   }
-  scannedImage.data = scannedData;
-  return scannedImage;
+}
+
+//display image
+function displayImage(image) {
+  ctx.putImageData(image, 0, 0);
 }
