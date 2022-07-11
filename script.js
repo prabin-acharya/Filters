@@ -27,7 +27,9 @@ image.addEventListener("load", () => {
 
   // reflectImage(scannedImage);
 
-  blurImage(scannedImage);
+  //Here we need two images because we are modifying the pixel w.r.t other pixel around it, so we need to keep the original image
+  //and the modified image
+  blurImage(scannedImage, scannedImageOriginal);
 
   displayImage(scannedImage);
 });
@@ -41,63 +43,63 @@ function displayImage(image) {
 
 //apply grayscale filter
 function toGrayscale(scannedImage) {
-  const scannedData = scannedImage.data;
+  const imageData = scannedImage.data;
 
-  for (let i = 0; i < scannedData.length; i += 4) {
-    const red = scannedData[i];
-    const green = scannedData[i + 1];
-    const blue = scannedData[i + 2];
+  for (let i = 0; i < imageData.length; i += 4) {
+    const red = imageData[i];
+    const green = imageData[i + 1];
+    const blue = imageData[i + 2];
 
     const averageColorValue = (red + green + blue) / 3;
 
-    scannedData[i] = averageColorValue;
-    scannedData[i + 1] = averageColorValue;
-    scannedData[i + 2] = averageColorValue;
+    imageData[i] = averageColorValue;
+    imageData[i + 1] = averageColorValue;
+    imageData[i + 2] = averageColorValue;
   }
 }
 
 //apply sepia filter
 function toSepia(scannedImage) {
-  const scannedData = scannedImage.data;
+  const imageData = scannedImage.data;
 
-  for (let i = 0; i < scannedData.length; i += 4) {
-    const red = scannedData[i];
-    const green = scannedData[i + 1];
-    const blue = scannedData[i + 2];
+  for (let i = 0; i < imageData.length; i += 4) {
+    const red = imageData[i];
+    const green = imageData[i + 1];
+    const blue = imageData[i + 2];
 
     const newRed = red * 0.393 + green * 0.769 + blue * 0.189;
     const newGreen = red * 0.349 + green * 0.686 + blue * 0.168;
     const newBlue = red * 0.272 + green * 0.534 + blue * 0.131;
 
-    scannedData[i] = newRed;
-    scannedData[i + 1] = newGreen;
-    scannedData[i + 2] = newBlue;
+    imageData[i] = newRed;
+    imageData[i + 1] = newGreen;
+    imageData[i + 2] = newBlue;
   }
 }
 
 //apply Negative filter
 function toNegative(scannedImage) {
-  const scannedData = scannedImage.data;
+  const imageData = scannedImage.data;
 
-  for (let i = 0; i < scannedData.length; i += 4) {
-    const red = scannedData[i];
-    const green = scannedData[i + 1];
-    const blue = scannedData[i + 2];
+  for (let i = 0; i < imageData.length; i += 4) {
+    const red = imageData[i];
+    const green = imageData[i + 1];
+    const blue = imageData[i + 2];
 
-    scannedData[i] = 255 - red;
-    scannedData[i + 1] = 255 - green;
-    scannedData[i + 2] = 255 - blue;
+    imageData[i] = 255 - red;
+    imageData[i + 1] = 255 - green;
+    imageData[i + 2] = 255 - blue;
   }
 }
 
 //filter to reflect the image
 function reflectImage(scannedImage) {
-  const scannedData = scannedImage.data;
+  const imageData = scannedImage.data;
 
-  for (let i = 0; i < scannedData.length / (canvas.width * 4); i++) {
+  for (let i = 0; i < imageData.length / (canvas.width * 4); i++) {
     for (let j = 0; j < (canvas.width * 4) / 2; j += 4) {
       swapPixels(
-        scannedData,
+        imageData,
         canvas.width * i * 4 + j,
         canvas.width * i * 4 + canvas.width * 4 - 4 - j
       );
@@ -105,47 +107,48 @@ function reflectImage(scannedImage) {
   }
 }
 
-function swapPixels(scannedData, pixel1, pixel2) {
+function swapPixels(imageData, pixel1, pixel2) {
   const tempPixel1 = {
-    red: scannedData[pixel1],
-    green: scannedData[pixel1 + 1],
-    blue: scannedData[pixel1 + 2],
-    alpha: scannedData[pixel1 + 3],
+    red: imageData[pixel1],
+    green: imageData[pixel1 + 1],
+    blue: imageData[pixel1 + 2],
+    alpha: imageData[pixel1 + 3],
   };
 
-  scannedData[pixel1] = scannedData[pixel2];
-  scannedData[pixel1 + 1] = scannedData[pixel2 + 1];
-  scannedData[pixel1 + 2] = scannedData[pixel2 + 2];
-  scannedData[pixel1 + 3] = scannedData[pixel2 + 3];
+  imageData[pixel1] = imageData[pixel2];
+  imageData[pixel1 + 1] = imageData[pixel2 + 1];
+  imageData[pixel1 + 2] = imageData[pixel2 + 2];
+  imageData[pixel1 + 3] = imageData[pixel2 + 3];
 
-  scannedData[pixel2] = tempPixel1.red;
-  scannedData[pixel2 + 1] = tempPixel1.green;
-  scannedData[pixel2 + 2] = tempPixel1.blue;
-  scannedData[pixel2 + 3] = tempPixel1.alpha;
+  imageData[pixel2] = tempPixel1.red;
+  imageData[pixel2 + 1] = tempPixel1.green;
+  imageData[pixel2 + 2] = tempPixel1.blue;
+  imageData[pixel2 + 3] = tempPixel1.alpha;
 }
 
 //apply blur filter
-function blurImage(scannedImage) {
-  const scannedData = scannedImage.data;
+function blurImage(scannedImage, scannedImageOriginal) {
+  const imageData = scannedImage.data;
 
-  for (let i = 0; i < scannedData.length / (canvas.width * 4); i++) {
+  const imageDataOriginal = scannedImageOriginal.data;
+
+  for (let i = 0; i < imageData.length / (canvas.width * 4); i++) {
     for (let j = 0; j < canvas.width * 4; j += 4) {
-      boxblur_pixel(scannedData, i, j);
+      boxblur_pixel(imageData, imageDataOriginal, i, j);
     }
   }
 }
 
 //3*3 box blur
-//TODO: make a copy of image and use original pixels for blur(right now it
-//  uses pixels that are already blurred as it parses through the image)
-function boxblur_pixel(scannedData, i, j) {
+function boxblur_pixel(imageData, imageDataOriginal, i, j) {
   let red, green, blue;
   red = green = blue = 0;
   let numOfValidPixels = 0;
 
   for (let x = -1; x <= 1; x++) {
     for (let y = -1; y <= 1; y++) {
-      const pixel = getPixel(scannedData, i + x, j + y * 4);
+      const pixel = getPixel(imageDataOriginal, i + x, j + y * 4);
+
       if (pixel) {
         red += pixel.red;
         green += pixel.green;
@@ -154,20 +157,19 @@ function boxblur_pixel(scannedData, i, j) {
       }
     }
   }
-
   const averageRed = red / numOfValidPixels;
   const averageGreen = green / numOfValidPixels;
   const averageBlue = blue / numOfValidPixels;
 
-  scannedData[i * canvas.width * 4 + j] = averageRed;
-  scannedData[i * canvas.width * 4 + j + 1] = averageGreen;
-  scannedData[i * canvas.width * 4 + j + 2] = averageBlue;
+  imageData[i * canvas.width * 4 + j] = averageRed;
+  imageData[i * canvas.width * 4 + j + 1] = averageGreen;
+  imageData[i * canvas.width * 4 + j + 2] = averageBlue;
 }
 
-function getPixel(scannedData, i, j) {
+function getPixel(imageData, i, j) {
   return {
-    red: scannedData[i * canvas.width * 4 + j],
-    green: scannedData[i * canvas.width * 4 + j + 1],
-    blue: scannedData[i * canvas.width * 4 + j + 2],
+    red: imageData[i * canvas.width * 4 + j],
+    green: imageData[i * canvas.width * 4 + j + 1],
+    blue: imageData[i * canvas.width * 4 + j + 2],
   };
 }
