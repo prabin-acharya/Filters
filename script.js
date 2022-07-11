@@ -1,13 +1,22 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 512;
-canvas.height = 512;
-
 const image = new Image();
-image.src = "DALLE.png";
+image.src = "machine.png";
 
 image.addEventListener("load", () => {
+  //adjust image size
+  if (image.width > image.height) {
+    canvas.width = 512;
+    canvas.height = (512 / image.width) * image.height;
+  } else if (image.width < image.height) {
+    canvas.height = 512;
+    canvas.width = (512 / image.height) * image.width;
+  } else {
+    canvas.width = 512;
+    canvas.height = 512;
+  }
+
   ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
   const scannedImageOriginal = ctx.getImageData(
