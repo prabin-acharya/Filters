@@ -38,7 +38,9 @@ image.addEventListener("load", () => {
 
   //Here we need two images because we are modifying the pixel w.r.t other pixel around it, so we need to keep the original image
   //and the modified image
-  blurImage(scannedImage, scannedImageOriginal);
+  // blurImage(scannedImage, scannedImageOriginal);
+
+  edgeDetection(scannedImage, scannedImageOriginal);
 
   displayImage(scannedImage);
 });
@@ -181,4 +183,66 @@ function getPixel(imageData, i, j) {
     green: imageData[i * canvas.width * 4 + j + 1],
     blue: imageData[i * canvas.width * 4 + j + 2],
   };
+}
+
+//edge detection
+function edgeDetection(scannedImage, scannedImageOriginal) {
+  const scannedData = scannedImage.data;
+
+  const imageDataOriginal = scannedImageOriginal.data;
+
+  for (let i = 0; i < scannedData.length / (canvas.width * 4); i++) {
+    for (let j = 0; j < canvas.width * 4; j += 4) {
+      sobelOperator_pixel(scannedData, imageDataOriginal, i, j);
+    }
+  }
+}
+
+function sobelOperator_pixel(scannedData, imageDataOriginal, i, j) {
+  let Gx_red, Gx_green, Gx_blue, Gy_red, Gy_green, Gy_blue;
+  Gx_red = Gx_green = Gx_blue = Gy_red = Gy_green = Gy_blue = 0;
+  let numOfValidPixels = 0;
+
+  const Gx = [
+    [1, 0, -1],
+    [2, 0, -2],
+    [1, 0, -1],
+  ];
+
+  const Gy = [
+    [1, 2, 1],
+    [0, 0, 0],
+    [-1, -2, -1],
+  ];
+
+  for (let x = -1; x <= 1; x++) {
+    for (let y = -1; y <= 1; y++) {
+      const pixel = getPixel(imageDataOriginal, i + x, j + y * 4);
+
+      if (pixel) {
+        Gx_red += pixel.red * Gx[x + 1][y + 1];
+        Gx_green += pixel.green * Gx[x + 1][y + 1];
+        Gx_blue += pixel.blue * Gx[x + 1][y + 1];
+
+        Gy_red += pixel.red * Gy[x + 1][y + 1];
+        Gy_green += pixel.green * Gy[x + 1][y + 1];
+        Gy_blue += pixel.blue * Gy[x + 1][y + 1];
+
+        numOfValidPixels++;
+      }
+    }
+  }
+
+  const finalRed = Math.round(Math.sqrt(Gx_red * Gx_red + Gy_red * Gy_red));
+  const finalGreen = Math.round(
+    Math.sqrt(Gx_green * Gx_green + Gy_green * Gy_green)
+  );
+  const finalBlue = Math.round(
+    Math.sqrt(Gx_blue * Gx_blue + Gy_blue * Gy_blue)
+  );
+
+  scannedData[i * canvas.width * 4 + j] = finalRed > 255 ? 255 : finalRed;
+  scannedData[i * canvas.width * 4 + j + 1] =
+    finalGreen > 255 ? 255 : finalGreen;
+  scannedData[i * canvas.width * 4 + j + 2] = finalBlue > 255 ? 255 : finalBlue;
 }
