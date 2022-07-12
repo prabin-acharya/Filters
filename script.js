@@ -2,7 +2,8 @@ const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
 const image = new Image();
-image.src = "machine.png";
+
+image.src = "DALLE.png";
 
 image.addEventListener("load", () => {
   //adjust image size
@@ -34,20 +35,29 @@ image.addEventListener("load", () => {
 
   // toNegative(scannedImage);
 
-  // reflectImage(scannedImage);
+  reflectImage(scannedImage);
 
   //Here we need two images because we are modifying the pixel w.r.t other pixel around it, so we need to keep the original image
   //and the modified image
   // blurImage(scannedImage, scannedImageOriginal);
 
-  edgeDetection(scannedImage, scannedImageOriginal);
+  // edgeDetection(scannedImage, scannedImageOriginal);
 
-  displayImage(scannedImage);
+  displayImage(scannedImage, scannedImageOriginal);
 });
 
 //display image
-function displayImage(image) {
-  ctx.putImageData(image, 0, 0);
+function displayImage(modifiedImage, originalImage) {
+  ctx.putImageData(modifiedImage, 0, 0);
+
+  canvas.addEventListener("mousedown", (e) => {
+    console.log(e.button);
+    e.button === 0 && ctx.putImageData(originalImage, 0, 0);
+  });
+
+  canvas.addEventListener("mouseup", (e) => {
+    e.button === 0 && ctx.putImageData(modifiedImage, 0, 0);
+  });
 }
 
 //Filters
@@ -201,7 +211,6 @@ function edgeDetection(scannedImage, scannedImageOriginal) {
 function sobelOperator_pixel(scannedData, imageDataOriginal, i, j) {
   let Gx_red, Gx_green, Gx_blue, Gy_red, Gy_green, Gy_blue;
   Gx_red = Gx_green = Gx_blue = Gy_red = Gy_green = Gy_blue = 0;
-  let numOfValidPixels = 0;
 
   const Gx = [
     [1, 0, -1],
@@ -227,8 +236,6 @@ function sobelOperator_pixel(scannedData, imageDataOriginal, i, j) {
         Gy_red += pixel.red * Gy[x + 1][y + 1];
         Gy_green += pixel.green * Gy[x + 1][y + 1];
         Gy_blue += pixel.blue * Gy[x + 1][y + 1];
-
-        numOfValidPixels++;
       }
     }
   }
